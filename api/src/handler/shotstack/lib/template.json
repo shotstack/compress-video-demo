@@ -1,0 +1,27 @@
+{
+    "timeline": {
+        "background": "#000000",
+        "tracks": [
+            {
+                "clips": [
+                    {
+                        "asset": {
+                            "type": "video",
+                            "src": "#",
+                            "volume": 1
+                        },
+                        "start": 0,
+                        "length": 5
+                    }
+                ]
+            }
+        ]
+    },
+    "output": {
+        "format": "mp4",
+        "size": {
+            "width": 640,
+            "height": 480
+        }
+    }
+}
