@@ -14,6 +14,7 @@ var maxVideoDuration = 120;
 var originalWidth;
 var originalHeight;
 var originalDuration;
+var originalFileSize;
 
 /**
  * Initialise and play the video
@@ -44,6 +45,59 @@ function initialiseVideo(src) {
 }
 
 /**
+ * Convert bytes to the closest unit of storage (KB, MB, GB etc).
+ *
+ * @param {Number} bytes - number of bytes
+ * @param {Number} decimal - number of decimal places.
+ *
+ * @returns {String} representation of bytes in closest unit of storage.
+ */
+function formatBytes(bytes, decimals = 2) {
+    if (bytes === 0) return '0 Bytes';
+
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
+
+/**
+ * Show the size of the original and compressed video, as well as the savings
+ * that compression achieved as a percentage. Uses the Shotstack probe API to
+ * get the dimensions of the compressed video.
+ *
+ * @param {String} url - the URL of a video.
+ */
+function showCompressedVideoFileSize(url) {
+    $.get(probeEndpoint + encodeURIComponent(url), function (data, status) {
+        const metadata = data.response.metadata;
+
+        for (let i = 0; i < metadata.streams.length; i++) {
+            stream = metadata.streams[i];
+
+            if (stream.codec_type === 'video' && stream.width && stream.height) {
+                const compressedFileSize = Number(metadata.format.size);
+                const saving = ((originalFileSize - compressedFileSize) / originalFileSize) * 100;
+
+                $('#original-file-size').text(formatBytes(originalFileSize, 1));
+                $('#compressed-file-size').text(formatBytes(compressedFileSize, 1));
+                $('#file-size-delta-percentage').text(saving.toFixed(0));
+                $('#file-delta-summary').removeClass('d-none');
+
+                break;
+            }
+        }
+    }).fail(function(error) {
+        console.error(error);
+        displayError('Failed to get size of compressed video');
+    });
+
+}
+
+/**
  * Check the render status of the video
  *
  * @param {String} id  the render job UUID
@@ -61,6 +115,8 @@ function pollVideoStatus(id) {
             initialiseVideo(response.data.url);
             initialiseJson(response.data.data);
             initialiseDownload(response.data.url);
+            showCompressedVideoFileSize(response.data.url);
+
             resetForm();
         }
     });
@@ -172,6 +228,7 @@ function resetVideo() {
 function submitVideoEdit() {
     updateStatus('submitted');
     $('#submit-video').prop('disabled', true);
+    $('#file-delta-summary').addClass('d-none');
 
     var formData = {
         video: getSelectedVideoFile(),
@@ -397,6 +454,16 @@ function saveOriginalVideoDuration(duration) {
 }
 
 /**
+ * Save the file size of the original video. Used to calculate the savings
+ * after video has been compressed.
+ *
+ * @param {Number} bytes - size of the video in bytes.
+ */
+function saveOriginalFileSize(bytes) {
+    originalFileSize = bytes;
+}
+
+/**
  * Get the dimensions of a video file. Uses the Shotstack probe endpoint.
  *
  * @param {String} url
@@ -413,6 +480,7 @@ function setDimensionsFromFile(url) {
             if (stream.codec_type === 'video' && stream.width && stream.height) {
                 saveOriginalVideoWidthHeight(stream);
                 saveOriginalVideoDuration(Number(metadata.format.duration));
+                saveOriginalFileSize(Number(metadata.format.size));
                 calculateProportionalWidthHeight();
                 $('#dimensions-placeholder').removeClass('d-none');
                 $('#submit-video').prop('disabled', false);

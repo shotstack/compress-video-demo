@@ -182,6 +182,23 @@
                         </div>
 
                         <div class="alert alert-danger d-none" role="alert" id="errors"></div>
+
+                        <div class="alert alert-info d-none" role="alert" id="file-delta-summary">
+                            <table>
+                                <tr>
+                                    <td>Original size</td>
+                                    <td class="value"><span id="original-file-size"></span></td>
+                                </tr>
+                                <tr>
+                                    <td>Compressed size</td>
+                                    <td class="value"><span id="compressed-file-size"></span></td>
+                                </tr>
+                                <tr>
+                                    <td>Savings</td>
+                                    <td class="value"><span id="file-size-delta-percentage"></span>%</td>
+                                </tr>
+                            </table>
+                        </div>
                         <button type="submit" class="btn btn-primary" id="submit-video">
                             Create Video
                         </button>

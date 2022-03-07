@@ -93,3 +93,10 @@ input[name='video-url'],
 label {
     font-weight: 600;
 }
+
+#file-delta-summary table {
+    width: 100%;
+}
+td.value {
+    text-align: right;
+}
