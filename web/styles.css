@@ -100,3 +100,9 @@ label {
 td.value {
     text-align: right;
 }
+
+.alert-info {
+    color: #212529;
+    background-color: #eceff2;
+    border-color: #dfe3e8;
+}
