@@ -93,3 +93,16 @@ input[name='video-url'],
 label {
     font-weight: 600;
 }
+
+#file-delta-summary table {
+    width: 100%;
+}
+td.value {
+    text-align: right;
+}
+
+.alert-info {
+    color: #212529;
+    background-color: #eceff2;
+    border-color: #dfe3e8;
+}
